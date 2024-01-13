@@ -140,9 +140,10 @@ set(libtictoc_profiler_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/li
 install(FILES ${libline_lbd_lib_PATH} DESTINATION lib)
 install(FILES ${libtictoc_profiler_PATH} DESTINATION lib)
 
-# Add executables
+# Define executables and tie relevant .cpp files
 add_executable(det_rgbd_opti_sun_node
   src/sun_rgbd_driver.cpp
+  src/sun_rgbd_example_class.cpp
 )
 
 ament_target_dependencies(det_rgbd_opti_sun_node
