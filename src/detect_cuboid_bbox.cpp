@@ -17,11 +17,12 @@
 
 // Eigen
 #include <Eigen/Dense>
-#include <Eigen/Core>
+// #include <Eigen/Core> // eigen/dense already imports eigen/core
 
 // Dr. Yong`s edge detection based on openCV implementation but separated as a package. Adopted by Zhou from Germany
-#include <line_lbd/line_lbd_allclass.h>
-#include <line_lbd/line_descriptor.hpp>
+// Modified to be compatible with OpenCV 4 and ROS 2 by Azmyin Md. Kamal
+#include "ros2_line_lbd/line_lbd_allclass.h"
+#include "ros2_line_lbd/line_descriptor.hpp"
 
 #include "ros2_monocular_object_detection/detect_cuboid_bbox/matrix_utils.h"
 #include "ros2_monocular_object_detection/detect_cuboid_bbox/object_3d_util.h"

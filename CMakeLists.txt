@@ -1,9 +1,10 @@
+# NOTES import library from one package into library of another package https://answers.ros.org/question/403777/ros2-adding-a-library-from-another-package-to-a-library/
+
 cmake_minimum_required(VERSION 3.8)
 project(ros2_monocular_object_detection)
 
 # Optional if you need to use python packages, this needs to be set manually
 #set(ENV{PYTHONPATH} "/opt/ros/humble/lib/python3.10/site-packages/") # Must be set to match your installation
-
 
 # Use C++17, required by rclcpp
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3")
@@ -28,6 +29,7 @@ find_package(rclcpp REQUIRED)
 find_package(OpenCV 4.2 REQUIRED)
 find_package(Eigen3 3.3.0 REQUIRED)
 find_package(PCL 1.12 REQUIRED)
+find_package(ros2_line_lbd) # Dr. Yang`s line_lbd library built as a standalone ros2 package
 # find_package(Boost REQUIRED COMPONENTS system) # Need to check if this works or not
 
 message(STATUS ${PCL_LIBRARIES})
@@ -45,7 +47,6 @@ include_directories(${PCL_INCLUDE_DIRS}) # include headers for point cloud libra
 # Includes from Thirdparty libraries
 include_directories(
   ${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/include
   ${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/include
   ${ament_INCLUDE_DIRS}
 )
@@ -75,13 +76,14 @@ set_target_properties(cuboid_bbox_lib PROPERTIES VERSION "${cuboid_bbox_lib_VERS
 # Add necessary includes for this shared library
 ament_target_dependencies(cuboid_bbox_lib
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  ros2_line_lbd
 )
 
 # Link external libraries with the shared internal library
 target_link_libraries(cuboid_bbox_lib
     ${OpenCV_LIBS}
     ${EIGEN3_LIBS}
-    ${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so
+    # ${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so
     ${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/lib/libtictoc_profiler.so
     -lboost_system
   )
@@ -100,6 +102,7 @@ set_target_properties(plane_det_lib PROPERTIES VERSION "${plane_det_lib_VERSION}
 # Add necessary includes for this shared library
 ament_target_dependencies(plane_det_lib
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  ros2_line_lbd
 )
 
 # Link external libraries with the shared internal library
@@ -123,6 +126,7 @@ set_target_properties(sun_rgbd_lib PROPERTIES VERSION "${sun_rgbd_lib_VERSION}")
 # Add necessary includes for this shared library
 ament_target_dependencies(sun_rgbd_lib
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  ros2_line_lbd
 )
 
 target_link_libraries(sun_rgbd_lib
@@ -133,11 +137,11 @@ target_link_libraries(sun_rgbd_lib
 
 
 # Find the .so files provided in Thirdparty projects so that they may be found during runtime
-set(line_lbd_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so")
+# set(line_lbd_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so") # TODO this is now its own ros2 package
 set(tictoc_profiler_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/lib/libtictoc_profiler.so")
 
 # Install .so files to the lib directory in the install space
-install(FILES ${line_lbd_PATH} DESTINATION lib)
+# install(FILES ${line_lbd_PATH} DESTINATION lib)
 install(FILES ${tictoc_profiler_PATH} DESTINATION lib)
 
 # Define executables and tie relevant .cpp files
@@ -148,6 +152,7 @@ add_executable(det_rgbd_opti_sun_node
 
 ament_target_dependencies(det_rgbd_opti_sun_node
   PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  ros2_line_lbd
 )
 
 # Link a node with the internal shared libraries
@@ -180,7 +185,23 @@ ament_export_dependencies(
   plane_det_lib
   sun_rgbd_lib
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  ros2_line_lbd
 )
+
+# ament_export_dependencies(
+#   cuboid_bbox_lib
+#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+# )
+
+# ament_export_dependencies(
+#   plane_det_lib
+#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+# )
+
+# ament_export_dependencies(
+#   sun_rgbd_lib
+#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
+# )
 
 # If you have python nodes
 # # Python node
