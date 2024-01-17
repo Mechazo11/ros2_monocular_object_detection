@@ -19,7 +19,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
-// ours
+// Dr. Yong`s edge detection based on openCV implementation but separated as a package. Adopted by Zhou from Germany
 #include <line_lbd/line_lbd_allclass.h>
 #include <line_lbd/line_descriptor.hpp>
 
@@ -86,7 +86,7 @@ bool detect_cuboid_bbox::Read_Dimension_SUNRGBD(std::string &dim_file)
     dataset_obj_dim_list.resize(1,4); 
     dataset_obj_dim_list.setZero();
     if (!read_obj_detection_txt(dim_file, dataset_obj_dim_list, dataset_obj_name_list))
-        return -1;
+        return -1; // TODO need to change it to false, might cause an error -- Azmyin 01/14
     std::cout << "dataset_obj_dim_list: \n" << dataset_obj_dim_list << std::endl;
 	return true;
 }
@@ -338,6 +338,8 @@ void detect_cuboid_bbox::detect_cuboid_with_bbox_constraints(cv::Mat& rgb_img, E
 		cv::waitKey(0);
 	}
 
+
+	//! NEW IDEA: Here we will try to merge and grow the object
 
 	// step 4. for every sample and find best cuboid
 	double combined_scores = 1e9;

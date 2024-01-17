@@ -9,7 +9,8 @@
 
 //* ROS2 includes
 //* std_msgs in ROS 2 https://docs.ros2.org/foxy/api/std_msgs/index-msg.html
-#include "ros2_monocular_object_detection/cuboid_class.hpp"
+#include "ros2_monocular_object_detection/sun_rgbd_example_class.hpp"
+// #include "tictoc_profiler/profiler.hpp" // use the tictoc_profiler time statistics package
 
 //* Class defintion
 
@@ -18,13 +19,13 @@ int main(int argc, char **argv){
     rclcpp::init(argc, argv); // Always the first line, initialize this node
     
     //* Declare a node object
-    // auto node = std::make_shared<MonocularMode>(); 
+    auto node = std::make_shared<SUNRGBDObjectDetector>();
     
     // TODO something equivalent to a rospy.SpingOnce() method to manually run through the image sequences.
 
     // rclcpp::Rate rate(20); // Set the desired update rate (e.g., 10 Hz)
 
-    // rclcpp::spin(node); // Blocking node
+    rclcpp::spin(node); // Blocking node, only for testing
     rclcpp::shutdown();
     return 0;
 }

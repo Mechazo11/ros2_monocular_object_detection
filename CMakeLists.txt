@@ -133,17 +133,17 @@ target_link_libraries(sun_rgbd_lib
 
 
 # Find the .so files provided in Thirdparty projects so that they may be found during runtime
-set(libline_lbd_lib_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so")
-set(libtictoc_profiler_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/lib/libtictoc_profiler.so")
+set(line_lbd_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so")
+set(tictoc_profiler_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/lib/libtictoc_profiler.so")
 
 # Install .so files to the lib directory in the install space
-install(FILES ${libline_lbd_lib_PATH} DESTINATION lib)
-install(FILES ${libtictoc_profiler_PATH} DESTINATION lib)
+install(FILES ${line_lbd_PATH} DESTINATION lib)
+install(FILES ${tictoc_profiler_PATH} DESTINATION lib)
 
 # Define executables and tie relevant .cpp files
-add_executable(det_rgbd_opti_sun_node
+add_executable(det_rgbd_opti_sun_node 
   src/sun_rgbd_driver.cpp
-  src/sun_rgbd_example_class.cpp
+  src/sun_rgbd_example_class.cpp 
 )
 
 ament_target_dependencies(det_rgbd_opti_sun_node

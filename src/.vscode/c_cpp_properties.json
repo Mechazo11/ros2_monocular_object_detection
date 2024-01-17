@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/tigerwife/ros2_test/install/ros2_orb_slam3/include/**",
+        "/home/tigerwife/ros2_test/install/ros2_monocular_object_detection/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/tigerwife/ros2_test/src/ros2_monocular_object_detection/include/**",
+        "/home/tigerwife/ros2_test/src/ros2_orb_slam3/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

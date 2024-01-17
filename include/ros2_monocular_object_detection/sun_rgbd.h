@@ -1,3 +1,6 @@
+#ifndef SUN_RGBD_H
+#define SUN_RGBD_H
+
 // std c
 #include <stdio.h>
 #include <iostream>
@@ -11,7 +14,7 @@
 
 using namespace std;
 
-class dataset_sunrgbd
+class DatasetSunRGBD
 {
 public:
     /* data */
@@ -20,19 +23,10 @@ public:
     Eigen::MatrixXd obj_dim_list; 
 
 public:
-    dataset_sunrgbd(/* args */);
-    ~dataset_sunrgbd();
-    void LoadImageIndex(const string &strFile);
+    DatasetSunRGBD(/* args */); // Constructor
+    ~DatasetSunRGBD(); // Destructor
+    void LoadImageIndex(const string &strFile); // For a given image, find its index
     int LoadObjectGT(const string &obj_dim_file); // Originally void LoadObjectGT(const string &obj_dim_file);
 };
 
-//* Constructor
-dataset_sunrgbd::dataset_sunrgbd(/* args */)
-{
-}
-
-//* Desctructor
-dataset_sunrgbd::~dataset_sunrgbd()
-{
-}
-
+#endif

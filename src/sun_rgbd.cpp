@@ -1,7 +1,18 @@
 #include "ros2_monocular_object_detection/sun_rgbd.h"
 #include "ros2_monocular_object_detection/detect_cuboid_bbox/matrix_utils.h"
 
-void dataset_sunrgbd::LoadImageIndex(const string &strFile)
+
+//* Constructor
+DatasetSunRGBD::DatasetSunRGBD(/* args */)
+{
+}
+
+//* Desctructor
+DatasetSunRGBD::~DatasetSunRGBD()
+{
+}
+
+void DatasetSunRGBD::LoadImageIndex(const string &strFile)
 {
     ifstream f;
     f.open(strFile.c_str());
@@ -20,7 +31,7 @@ void dataset_sunrgbd::LoadImageIndex(const string &strFile)
     }
 }
 
-int dataset_sunrgbd::LoadObjectGT(const string &obj_dim_file)
+int DatasetSunRGBD::LoadObjectGT(const string &obj_dim_file)
 // void dataset_sunrgbd::LoadObjectGT(const string &obj_dim_file) // Original version
 /*
 Method to get all obj_dim_list. Returns 1 if okay and 0 if failed to read data
@@ -35,4 +46,4 @@ Method to get all obj_dim_list. Returns 1 if okay and 0 if failed to read data
     return 1;   
 }
 
-    
+

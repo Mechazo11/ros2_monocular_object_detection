@@ -8,10 +8,5 @@
         "/home/tigerwife/ros2_test/install/ros2_orb_slam3/local/lib/python3.10/dist-packages",
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
-    ],
-    "C_Cpp.errorSquiggles": "enabled",
-    "files.associations": {
-        "core": "cpp"
-    },
-    "cmake.configureOnOpen": false
+    ]
 }
