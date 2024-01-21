@@ -35,19 +35,42 @@ using namespace std;
 // using namespace cv;
 using namespace Eigen;
 
-bool detect_cuboid_bbox::Read_Image_SUNRGBD(std::string & img_file) // read images width and height 
+bool detect_cuboid_bbox::Read_Image_SUNRGBD(std::string &img_file) // read images width and height 
 {
+	/*
+		Method that reads an image file based on the index, only works for SUN-RGBD dataset
+	*/
+	
+	//* Updated by Azmyin on 01/17/2024
 	// rgb_img = cv::imread(img_file, CV_LOAD_IMAGE_COLOR); // OpenCV 3 version, depricated
+	//* rgb_img is a work variable within detect_cuboid_bbox class
 	rgb_img = cv::imread(img_file, cv::IMREAD_COLOR);
-	if (rgb_img.empty() || rgb_img.depth() != CV_8U)
+
+	//* For debug only
+	// cv::imshow("test_window", rgb_img);
+	// cv::waitKey(1000);
+
+	if (rgb_img.empty() || rgb_img.depth() != CV_8U){
+
 		std::cout << "ERROR: cannot read color image. No such a file, or the image format is not 8UC3" << std::endl;
+		return false;
+	}
+	else{
+		return true;
+	}
 }
 
 bool detect_cuboid_bbox::Read_Kalib_SUNRGBD(std::string &calib_file)
 {
+	//* Updated by Azmyin on 01/17/2024
+	
+	/*
+		Method to set camera calibration matrix data, only works for SUN-RGBD dataset
+	*/
+	
 	Eigen::MatrixXd calib_data(2,9); 
 	if (!read_all_number_txt(calib_file, calib_data))
-		return -1;
+		return false; // Should not return -1 from a method that is defined to return a boolean
 	// std::cout << "calib_data: \n" << calib_data << std::endl;
 	Eigen::Matrix3d Calib, Rtilt;  
 	Rtilt << calib_data(0,0), calib_data(0,3), calib_data(0,6), 
@@ -56,8 +79,11 @@ bool detect_cuboid_bbox::Read_Kalib_SUNRGBD(std::string &calib_file)
 	Calib << calib_data(1,0), calib_data(1,3), calib_data(1,6), 
 			calib_data(1,1), calib_data(1,4), calib_data(1,7),
 			calib_data(1,2), calib_data(1,5), calib_data(1,8);
-	std::cout << "Calib: \n" << Calib << std::endl;
-	std::cout << "Rtilt: \n" << Rtilt << std::endl;
+	
+	// Debug
+	// std::cout << "Calib: \n" << Calib << std::endl;
+	// std::cout << "Rtilt: \n" << Rtilt << std::endl;
+	
 	Eigen::Matrix3d rotate_y_z; // change from world to camera coordinate ...
 	rotate_y_z << 1,0,0,  0,0,-1,  0,1,0; // roll, pitch, yaw = 1.57, 0, 0;
 	// rotate_y_z << 1,0,0,  0,0,1,  0,-1,0; // roll, pitch, yaw = 1.57, 3.14, 3.14;
@@ -68,7 +94,9 @@ bool detect_cuboid_bbox::Read_Kalib_SUNRGBD(std::string &calib_file)
 	transToWolrd.setIdentity();
 	transToWolrd.block(0,0,3,3) = Tcw.transpose();
 	transToWolrd.col(3).head(3) = Eigen::Vector3d(0,0,0);
-	// // std::cout << "euler_angles: " << rotate_y_z.eulerAngles ( 0,1,2 ) << std::endl;
+	
+	//? Maybe from Dr. Yang`s CubeSLAM work?
+	// std::cout << "euler_angles: " << rotate_y_z.eulerAngles ( 0,1,2 ) << std::endl;
 	// Eigen::MatrixXd proj_matrix(3,4); // from world to image
 	// proj_matrix.block(0,0,3,3) = Calib * rotate_y_z * Rtilt.transpose();
 	// proj_matrix.col(3).head(3) = Eigen::Vector3d(0,0,0); // camera lays in 0,0,0 in original dataset
@@ -90,7 +118,7 @@ bool detect_cuboid_bbox::Read_Dimension_SUNRGBD(std::string &dim_file)
     dataset_obj_dim_list.resize(1,4); 
     dataset_obj_dim_list.setZero();
     if (!read_obj_detection_txt(dim_file, dataset_obj_dim_list, dataset_obj_name_list))
-        return -1; // TODO need to change it to false, might cause an error -- Azmyin 01/14
+        return false; // Changed to false cuz returning -1 which is an int from a method that returns boolean makes no sense -- Azmyin 01/14
     std::cout << "dataset_obj_dim_list: \n" << dataset_obj_dim_list << std::endl;
 	return true;
 }

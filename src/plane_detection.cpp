@@ -2,6 +2,7 @@
 
 PlaneDetection::PlaneDetection()
 {
+	// Constructor
 }
 
 PlaneDetection::~PlaneDetection()
@@ -72,26 +73,37 @@ bool PlaneDetection::readColorImage(string &filename)
 
 bool PlaneDetection::readDepthImage(string &filename)
 {
+	 
 	std::cout << "start reading depth image " << std::endl;
 	// cv::Mat imDepth = cv::imread(filename, CV_LOAD_IMAGE_ANYDEPTH);
 	// imDepth = cv::imread(filename, CV_LOAD_IMAGE_UNCHANGED);
 	imDepth = cv::imread(filename, cv::IMREAD_UNCHANGED); // https://stackoverflow.com/questions/28534070/cv-load-image-unchanged-undeclared-identifier
+	
 	if (imDepth.empty() || imDepth.depth() != CV_16U)
 	{
 		cout << "WARNING: cannot read depth image. No such a file, or the image format is not 16UC1" << endl;
 		return false;
 	}
 	// // change depth value, do not know why, but do it
-	if (fabs(mDepthMapFactor) < 1e-5)
+	//* TODO need some clarification on these conditionals
+	if (fabs(mDepthMapFactor) < 1e-5){
 		mDepthMapFactor = 1;
-	else
+	}
+		
+	else{
 		mDepthMapFactor = 1.0f / mDepthMapFactor;
+	}
+		
 	if ((fabs(mDepthMapFactor - 1.0f) > 1e-5) || imDepth.type() != CV_32F)
 		imDepth.convertTo(imDepth, CV_32F, mDepthMapFactor);
+
+	return true;
 }
 
 bool PlaneDetection::ConvertDepthToPointCloud()
 {
+	// TODO this function should be a void as there is other conditional to check if an operation failed or not?
+	
 	// // translate to point cloud
 	// // PointCloud::Ptr inputCloud( new PointCloud() );
 	int cloudDis = 1;
@@ -104,6 +116,8 @@ bool PlaneDetection::ConvertDepthToPointCloud()
 			p.z = d;
 			p.x = (n - cx) * p.z / fx;
 			p.y = (m - cy) * p.z / fy;
+			
+			// TODO need explanation for these lines 
 			p.r = 177; //rgb_img.at<cv::Vec3b>(m,n)[2];//177;
 			p.g = 177; //rgb_img.at<cv::Vec3b>(m,n)[1];//177;
 			p.b = 177; //rgb_img.at<cv::Vec3b>(m,n)[0];//177;
@@ -119,23 +133,34 @@ bool PlaneDetection::ConvertDepthToPointCloud()
 
 void PlaneDetection::ComputePlanesFromOrganizedPointCloud()
 {
+	
+	// std::cout<<"\n FOO_plane\n";
+	// std::cout<<"\n BAR_plane\n";
+	
+	// Default parameters
 	int min_plane = 1000; //MultiPlane_SizeMin;//300;
 	float AngTh = 3.0;	  // MultiPlane_AngleThre;//2.0;
 	float DisTh = 0.5;	  // MultiPlane_DistThre;//0.02;
 	std::cout << "min_plane " << min_plane << std::endl;
 	std::cout << "AngTh " << AngTh << std::endl;
 	std::cout << "DisTh " << DisTh << std::endl;
+	
 	// // firstly, compute normal
+	
 	// pcl::PointCloud<PointT>::Ptr  input_cloud=rgbd_cloud.makeShared();
+	
 	pcl::PointCloud<PointT>::Ptr input_cloud = rgbd_cloud.makeShared();
 	pcl::IntegralImageNormalEstimation<PointT, pcl::Normal> ne;
+	
 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
 	ne.setNormalEstimationMethod(ne.AVERAGE_3D_GRADIENT);
 	ne.setMaxDepthChangeFactor(0.05f); // 0.05
 	ne.setNormalSmoothingSize(10.0f);  // 10.0
-	ne.setInputCloud(input_cloud);
+	
+	ne.setInputCloud(input_cloud); // 01/18/2024 has error https://github.com/PointCloudLibrary/pcl/issues/5063
+	
 	ne.compute(*cloud_normals);
-
+	
 	// secondly, compute region, label, coefficient, inliners, ...
 	pcl::OrganizedMultiPlaneSegmentation<PointT, pcl::Normal, pcl::Label> mps;
 	pcl::PointCloud<pcl::Label>::Ptr labels(new pcl::PointCloud<pcl::Label>);
@@ -166,7 +191,8 @@ void PlaneDetection::ComputePlanesFromOrganizedPointCloud()
 		extract.setInputCloud(input_cloud);
 		extract.setNegative(false);
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr planeCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-		//* 01/12/24 code breaks here
+		
+		//* 01/12/24 code broke here, see below
 		// extract.setIndices(boost::make_shared<pcl::PointIndices>(inliers[i])); // #include <boost/make_shared.hpp>, original version when PCL 1.3 was used
 		//* This line gives an error "no matching function". I am assuming between PCL 1.3 to 1.12, they have changed how shared_ptrs are called or something
 		extract.setIndices(pcl::make_shared<pcl::PointIndices>(inliers[i]));

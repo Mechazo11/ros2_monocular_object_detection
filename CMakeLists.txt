@@ -28,19 +28,21 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(OpenCV 4.2 REQUIRED)
 find_package(Eigen3 3.3.0 REQUIRED)
-find_package(PCL 1.12 REQUIRED)
+find_package(PCL 1.13 REQUIRED)
 find_package(ros2_line_lbd REQUIRED) # Dr. Yang`s line_lbd library built as a standalone ros2 package
 find_package(ros2_tictoc_profiler REQUIRED) # ROS 2 library only package, port of Daniel Mataurna`s tictoc_profiler package
 # find_package(Boost REQUIRED COMPONENTS system) # Need to check if this works or not
 
-# Header file locations
+# Header file locations, link libraries and definitions
 include_directories(include) # This package include
 include_directories(${EIGEN3_INCLUDE_DIRS}) # Include headers for eigen3
 include_directories(${OpenCV_INCLUDE_DIRS}) # include headers for pangolin
-include_directories(${PCL_INCLUDE_DIRS}) # include headers for point cloud library
+include_directories(${PCL_INCLUDE_DIRS}) # include headers for PCL library
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
-# link_directories(${PCL_LIBRARY_DIRS})
-# add_definitions(${PCL_DEFINITIONS})
+message("PCL Include Directories: ${PCL_INCLUDE_DIRS}") # Debug message
+#message("PCL_SAMPLE_CONSESUS_LIBRARIES: " ${PCL_SAMPLE_CONSESUS_LIBRARIES})
 
 
 # Include libraries from other packges and system-wide installed packages
@@ -55,11 +57,10 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp
   OpenCV
   Eigen3
+  PCL
   # ros2_line_lbd
   # ros2_tictoc_profiler
 )
-
-
 
 # Setup internal libraries
 #* Use the structure below. For more advanced example follow this https://github.com/Mechazo11/ros2_orb_slam3/blob/main/CMakeLists.txt
@@ -109,10 +110,11 @@ ament_target_dependencies(plane_det_lib
 target_link_libraries(plane_det_lib
     ${OpenCV_LIBS}
     ${EIGEN3_LIBS}
-    ${PCL_LIBRARIES}
-    ${ros2_line_lbd_LIBRARIES}
-    ${ros2_tictoc_profiler_LIBRARIES}
     -lboost_system
+    ${PCL_LIBRARIES}
+    # ${ros2_line_lbd_LIBRARIES}
+    # ${ros2_tictoc_profiler_LIBRARIES}
+    
   )
 # -----------------------------------------------------------------------------------------
 
@@ -163,6 +165,8 @@ target_link_libraries(det_rgbd_opti_sun_node PUBLIC
   cuboid_bbox_lib
   plane_det_lib
   sun_rgbd_lib
+  ${ros2_line_lbd_LIBRARIES}
+  ${ros2_tictoc_profiler_LIBRARIES}
 ) 
 
 
@@ -189,21 +193,6 @@ ament_export_dependencies(
   sun_rgbd_lib
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
-
-# ament_export_dependencies(
-#   cuboid_bbox_lib
-#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
-# )
-
-# ament_export_dependencies(
-#   plane_det_lib
-#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
-# )
-
-# ament_export_dependencies(
-#   sun_rgbd_lib
-#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
-# )
 
 # If you have python nodes
 # # Python node

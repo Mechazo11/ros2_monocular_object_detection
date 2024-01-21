@@ -29,8 +29,9 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
     // rclcpp::Parameter param1 = this->get_parameter("path_to_sunrgbd_dataset_arg");
     // pathToDataset = param1.as_string();
 
-    // RCLCPP_INFO(this->get_logger(), "pathToDataset %s", pathToDataset.c_str());
+    RCLCPP_INFO(this->get_logger(), "pathToDataset %s", pathToDataset.c_str());
 
+    // Initialize paths
     imageFolder = pathToDataset + "/rgb/";
 	depthFolder = pathToDataset + "/depth/";
 	labelFolder = pathToDataset + "/label/";
@@ -40,8 +41,10 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
 	indexFile = pathToDataset + "/index.txt";
 	objDimFile = pathToDataset + "/obj_dim_average.txt";
     
-    ca::Profiler::enable(); // Activate tictoc_profiler time keeper
-
+    // Load image index
+	dataLoader.LoadImageIndex(indexFile);
+	vImageId = dataLoader.vstrImageIndex;
+    RCLCPP_INFO(this->get_logger(), "Number of image indicies: %zu", vImageId.size());
     
 
     // Set configurations
@@ -53,15 +56,14 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
 	objectDetector.whether_sample_obj_yaw = true;
 	objectDetector.whether_add_plane_constraints = true;
 	objectDetector.whether_save_cam_obj_data = false;
-	objectDetector.whether_save_final_image = false;
+	objectDetector.whether_save_final_image = true;
 
     objectDetector.Read_Dimension_SUNRGBD(objDimFile); // Table 1 from 2022 point-plane-object SLAM paper
     
     totalFrameNumber = vImageId.size();
-    totalFrameNumber = 50; // 01/12/2024 As is from benchun`s repo, I am not sure why
+    totalFrameNumber = 2; // Set a positive value < 400 if you want to test with a subset of the images
 
     // Initialization complete
-
 }
 
 
@@ -73,43 +75,52 @@ SUNRGBDObjectDetector::~SUNRGBDObjectDetector()
    pass;
 }
 
-void SUNRGBDObjectDetector::detectCuboidsInOneImage(int frameIndex){
+void SUNRGBDObjectDetector::detectCuboidsInOneImage(int frame_id){
     /*
        TODO 
     */
 
-    std::cout << "-----------" << "frameIndex " << frameIndex << " " << vImageId[frameIndex] << "-----------" << std::endl;
+    
+    // Initialize work variables
+    std::string frameIndexString = ""; // Four digit index of the images
+    frameIndexString = vImageId[frame_id]; 
+    // RCLCPP_INFO(this->get_logger(), "Pulse1\n");
+    
+    // std::cout << "-----------" << "frameIndex " << frameIndex << " " << vImageId[frameIndex] << "-----------" << std::endl;
+    RCLCPP_INFO(this->get_logger(), "frameIndexString: %s", frameIndexString.c_str());
     
     //read image, calib and input
-    ca::Profiler::tictoc("Read image, calibration and gt files");
+    ca::Profiler::tictoc("Read image");
     
-    std::string imageFile = imageFolder + "/" + vImageId[frameIndex] + ".jpg";
+    std::string imageFile = imageFolder + "/" + frameIndexString + ".jpg";
+    // RCLCPP_INFO(this->get_logger(), "path to image file: %s", imageFile.c_str()); // Debug
     objectDetector.Read_Image_SUNRGBD(imageFile);
-    std::string calibFile = calibFolder + "/" + vImageId[frameIndex] + ".txt";
+    std::string calibFile = calibFolder + "/" + frameIndexString + ".txt";
     objectDetector.Read_Kalib_SUNRGBD(calibFile);
-    std::string truthCuboidFile = labelFolder + "/" + vImageId[frameIndex] + ".txt";
+    std::string truthCuboidFile = labelFolder + "/" + frameIndexString + ".txt";
     objectDetector.Read_Label_SUNRGBD(truthCuboidFile);
     
-    ca::Profiler::tictoc("Read image, calibration and gt files");
+    ca::Profiler::tictoc("Read image");
 
     // read depth image
     ca::Profiler::tictoc("Detect plane from depth image");
 
-    string depthImgFile = depthFolder + "/" + vImageId[frameIndex] + ".png";
+    string depthImgFile = depthFolder + "/" + frameIndexString + ".png";
     planeDetector.setDepthValue(8000); //? why 8000?
     planeDetector.setKalibValue(objectDetector.Kalib);
-    planeDetector.readDepthImage(depthImgFile);
+    planeDetector.readDepthImage(depthImgFile); // 01/18/24 fixed segmentation fault
     planeDetector.ConvertDepthToPointCloud();
-    planeDetector.ComputePlanesFromOrganizedPointCloud();
+    
+    planeDetector.ComputePlanesFromOrganizedPointCloud(); // Error here 01/18/24
     
     ca::Profiler::tictoc("Detect plane from depth image");
 
-    std::vector<ObjectSet> framesCuboids; // each 2d bbox generates an ObjectSet, which is vector of sorted proposals
-    cv::Mat rgbImg = objectDetector.rgb_img.clone();
-    std::vector<cv::Mat> detPlane = planeDetector.mvPlaneCoefficients;
+    // std::vector<ObjectSet> framesCuboids; // each 2d bbox generates an ObjectSet, which is vector of sorted proposals
+    // cv::Mat rgbImg = objectDetector.rgb_img.clone();
+    // std::vector<cv::Mat> detPlane = planeDetector.mvPlaneCoefficients;
     
     // create save file for every frame
-    string outputCuboidFile = outputFolder + "/" + vImageId[frameIndex] + "_3d_cuboids.txt";
-    string outputCuboidImg = outputImgFolder + "/" + vImageId[frameIndex] + "_3d_img.png";
-    objectDetector.detect_cuboid_every_frame(rgbImg, detPlane, framesCuboids, outputCuboidFile, outputCuboidImg);
+    // string outputCuboidFile = outputFolder + "/" + frameIndexString + "_3d_cuboids.txt";
+    // string outputCuboidImg = outputImgFolder + "/" + frameIndexString + "_3d_img.png";
+    //objectDetector.detect_cuboid_every_frame(rgbImg, detPlane, framesCuboids, outputCuboidFile, outputCuboidImg);
 }

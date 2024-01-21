@@ -1,15 +1,19 @@
 #ifndef PLANE_DETECTION_H
 #define PLANE_DETECTION_H
 
-
+//* C++ includes
 #include <iostream>
 #include <string>
 #include <fstream>
+
+//* Eigen includes
 #include <Eigen/Eigen>
 
+//* OpenCV includes
 #include "opencv2/opencv.hpp"
 #include <opencv2/imgproc/types_c.h>
 
+//* Point Cloud Library includes
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
@@ -17,9 +21,6 @@
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
-
-
-
 
 
 #include <pcl/common/transforms.h>
@@ -33,6 +34,7 @@
 #include <pcl/features/integral_image_normal.h>  // include pcl::IntegralImageNormalEstimation
 #include <pcl/segmentation/region_growing.h>// include pcl::RegionGrowing
 // #include <pcl/visualization/cloud_viewer.h>//include pcl::visualization::CloudViewer
+
 #include <boost/make_shared.hpp>
 
 using namespace std;

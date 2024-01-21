@@ -64,7 +64,7 @@ class SUNRGBDObjectDetector : public rclcpp::Node
     ~SUNRGBDObjectDetector(); // Destructor
 
     //* Methods
-    void detectCuboidsInOneImage(int frameIndex); // TODO write a short description
+    void detectCuboidsInOneImage(int frame_id); // TODO write a short description
 
 
     

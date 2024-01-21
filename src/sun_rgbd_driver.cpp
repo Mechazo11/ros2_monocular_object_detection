@@ -21,16 +21,16 @@ int main(int argc, char **argv){
     //* Declare a node object
     auto node = std::make_shared<SUNRGBDObjectDetector>();
     
-    //! RESUME FROM HERE find where the segmentation fault is coming from
     ca::Profiler::enable();
 
     // Main loop to go through all the images in the sequence
-    for (int frameIndex = 0; frameIndex < node->totalFrameNumber; frameIndex++){
-        node->detectCuboidsInOneImage(frameIndex);
+    for (int frameIdx = 0; frameIdx < node->totalFrameNumber; frameIdx++){
+        node->detectCuboidsInOneImage(frameIdx);
+        // std::cout<<"After detect cuboid images\n";
         rclcpp::spin_some(node); //? is this equivalent to rclpy.spinOnce()?
     }
     
-    ca::Profiler::print_aggregated(std::cout);
+    // ca::Profiler::print_aggregated(std::cout);
     
     // rclcpp::Rate rate(20); // Set the desired update rate (e.g., 10 Hz)
     // rclcpp::spin(node); // Blocking node, only for testing

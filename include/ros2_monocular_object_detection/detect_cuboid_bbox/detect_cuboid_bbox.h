@@ -114,9 +114,11 @@ public:
 };
 typedef std::vector<cuboid *> ObjectSet; // for each 2D box, the set of generated 3D cuboids
 
+//* Main class
 class detect_cuboid_bbox
 {
 public:
+    //* Parameters
     bool whether_plot_detail_images = false;
     bool whether_plot_ground_truth = false;
     bool whether_plot_sample_images = false;
@@ -127,6 +129,7 @@ public:
     bool whether_save_cam_obj_data = true;
     bool whether_save_final_image = true;
 
+    //* Work variables
     cv::Mat rgb_img;
     Eigen::Matrix4d Twc; // transToWolrd
     Eigen::Matrix3d Kalib;
@@ -137,6 +140,7 @@ public:
 	Eigen::MatrixXd detected_obj_input; 
 
 public:
+    //* Function definitions
     bool Read_Image_SUNRGBD(std::string & img_file); 
     bool Read_Kalib_SUNRGBD(std::string &calib_file);
     bool Read_Dimension_SUNRGBD(std::string &dim_file);
