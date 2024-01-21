@@ -26,7 +26,7 @@ public:
     DatasetSunRGBD(/* args */); // Constructor
     ~DatasetSunRGBD(); // Destructor
     void LoadImageIndex(const string &strFile); // For a given image, find its index
-    int LoadObjectGT(const string &obj_dim_file); // Originally void LoadObjectGT(const string &obj_dim_file);
+    int LoadObjectGT(const string &obj_dim_file, bool showObjDims); // Originally void LoadObjectGT(const string &obj_dim_file);
 };
 
 #endif

@@ -156,11 +156,12 @@ void PlaneDetection::ComputePlanesFromOrganizedPointCloud()
 	ne.setNormalEstimationMethod(ne.AVERAGE_3D_GRADIENT);
 	ne.setMaxDepthChangeFactor(0.05f); // 0.05
 	ne.setNormalSmoothingSize(10.0f);  // 10.0
-	
-	ne.setInputCloud(input_cloud); // 01/18/2024 has error https://github.com/PointCloudLibrary/pcl/issues/5063
-	
+
+	// 01/18/2024 has error https://github.com/PointCloudLibrary/pcl/issues/5063
+	// 01/24/2024 fixed with PCL 1.13 and Boost 1.84
+	ne.setInputCloud(input_cloud); 
 	ne.compute(*cloud_normals);
-	
+
 	// secondly, compute region, label, coefficient, inliners, ...
 	pcl::OrganizedMultiPlaneSegmentation<PointT, pcl::Normal, pcl::Label> mps;
 	pcl::PointCloud<pcl::Label>::Ptr labels(new pcl::PointCloud<pcl::Label>);

@@ -20,21 +20,37 @@ int main(int argc, char **argv){
     
     //* Declare a node object
     auto node = std::make_shared<SUNRGBDObjectDetector>();
-    
+    rclcpp::WallRate loop_rate(20); // Loop at 10 hz
+    int frameIdx = 0;
+
     ca::Profiler::enable();
 
-    // Main loop to go through all the images in the sequence
-    for (int frameIdx = 0; frameIdx < node->totalFrameNumber; frameIdx++){
+    while (rclcpp::ok() && frameIdx < node->totalFrameNumber) {
+        
         node->detectCuboidsInOneImage(frameIdx);
-        // std::cout<<"After detect cuboid images\n";
+        frameIdx++;
         rclcpp::spin_some(node); //? is this equivalent to rclpy.spinOnce()?
+        loop_rate.sleep();
+        
+        // TODO delete if works
+        // Main loop to go through all the images in the sequence
+        // for (int frameIdx = 0; frameIdx < node->totalFrameNumber; frameIdx++){
+        //     node->detectCuboidsInOneImage(frameIdx);
+        //     // std::cout<<"After detect cuboid images\n";
+        //     rclcpp::spin_some(node); //? is this equivalent to rclpy.spinOnce()?
+        // }
     }
     
-    // ca::Profiler::print_aggregated(std::cout);
-    
-    // rclcpp::Rate rate(20); // Set the desired update rate (e.g., 10 Hz)
-    // rclcpp::spin(node); // Blocking node, only for testing
-    rclcpp::shutdown();
+    node.reset();; // Calls destructor of SUNRGBDObjectDetector class
+    ca::Profiler::print_aggregated(std::cout); // Print out all time statistics
+    rclcpp::shutdown(); // Shutdown this ROS 2 
     return 0;
 }
 
+
+/*
+To be deleted
+    
+// rclcpp::Rate rate(20); // Set the desired update rate (e.g., 10 Hz)
+// rclcpp::spin(node); // Blocking node, only for testing
+*/

@@ -17,6 +17,9 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
 
     RCLCPP_INFO(this->get_logger(), "\nMonocular Object detector from point-plane-objects-SLAM paper started\n");
 
+    RCLCPP_INFO(this->get_logger(), "\nPRESS ANY BUTTON TO CYCLE THROUGH IMAGES\n");
+
+
     // Build path to dataset
     std::string homeDir = getenv("HOME");
     pathToDataset = homeDir + "/" + "Documents/" + "SUN_RGBD_Selected"; //!HARDCODED see README.md file
@@ -47,21 +50,25 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
     RCLCPP_INFO(this->get_logger(), "Number of image indicies: %zu", vImageId.size());
     
 
-    // Set configurations
-    objectDetector.whether_plot_detail_images = true;
-	objectDetector.whether_plot_ground_truth = false;
-	objectDetector.whether_plot_sample_images = false;
-	objectDetector.whether_plot_final_scores = true;
-	objectDetector.whether_sample_obj_dimension = true;
+    //* Configurations to view certain outputs
+    objectDetector.whether_plot_detail_images = false; // Shows normalized depth_map, edges detected by canny, edges inside the object
+	objectDetector.whether_plot_ground_truth = false; //! 01/21/24 not used
+	objectDetector.whether_plot_sample_images = false; // Show proposal of the 3d cuboids
+	objectDetector.whether_plot_final_scores = true; // Shows the final selected image
+	
+    //* Benchun Zhou`s cuboid detection strategy from his 2022 point-plane-object SLAM paper
+    objectDetector.whether_sample_obj_dimension = true;
 	objectDetector.whether_sample_obj_yaw = true;
 	objectDetector.whether_add_plane_constraints = true;
-	objectDetector.whether_save_cam_obj_data = false;
-	objectDetector.whether_save_final_image = true;
+
+	//* Save results?
+    objectDetector.whether_save_cam_obj_data = false;
+	objectDetector.whether_save_final_image = false;
 
     objectDetector.Read_Dimension_SUNRGBD(objDimFile); // Table 1 from 2022 point-plane-object SLAM paper
     
     totalFrameNumber = vImageId.size();
-    totalFrameNumber = 2; // Set a positive value < 400 if you want to test with a subset of the images
+    totalFrameNumber = 50; // Set a positive value < 400 if you want to test with a subset of the images
 
     // Initialization complete
 }
@@ -72,7 +79,7 @@ SUNRGBDObjectDetector::~SUNRGBDObjectDetector()
     /*
     Class destructor, release resources and gracefully exit
     */
-   pass;
+   cv::destroyAllWindows();
 }
 
 void SUNRGBDObjectDetector::detectCuboidsInOneImage(int frame_id){
@@ -90,37 +97,42 @@ void SUNRGBDObjectDetector::detectCuboidsInOneImage(int frame_id){
     RCLCPP_INFO(this->get_logger(), "frameIndexString: %s", frameIndexString.c_str());
     
     //read image, calib and input
-    ca::Profiler::tictoc("Read image");
+    ca::Profiler::tictoc("read image");
     
     std::string imageFile = imageFolder + "/" + frameIndexString + ".jpg";
+    std::string calibFile = calibFolder + "/" + frameIndexString + ".txt";
+    std::string truthCuboidFile = labelFolder + "/" + frameIndexString + ".txt";
+
     // RCLCPP_INFO(this->get_logger(), "path to image file: %s", imageFile.c_str()); // Debug
     objectDetector.Read_Image_SUNRGBD(imageFile);
-    std::string calibFile = calibFolder + "/" + frameIndexString + ".txt";
     objectDetector.Read_Kalib_SUNRGBD(calibFile);
-    std::string truthCuboidFile = labelFolder + "/" + frameIndexString + ".txt";
-    objectDetector.Read_Label_SUNRGBD(truthCuboidFile);
+    // objectDetector.Read_Label_SUNRGBD(truthCuboidFile); // Original
+    objectDetector.Read_Label_SUNRGBD(truthCuboidFile, false);
     
-    ca::Profiler::tictoc("Read image");
+    ca::Profiler::tictoc("read image");
 
     // read depth image
-    ca::Profiler::tictoc("Detect plane from depth image");
+    ca::Profiler::tictoc("planes from depth");
 
     string depthImgFile = depthFolder + "/" + frameIndexString + ".png";
     planeDetector.setDepthValue(8000); //? why 8000?
     planeDetector.setKalibValue(objectDetector.Kalib);
     planeDetector.readDepthImage(depthImgFile); // 01/18/24 fixed segmentation fault
     planeDetector.ConvertDepthToPointCloud();
+    planeDetector.ComputePlanesFromOrganizedPointCloud(); // Error here 01/18/24, fixed 01/24/2024
     
-    planeDetector.ComputePlanesFromOrganizedPointCloud(); // Error here 01/18/24
+    ca::Profiler::tictoc("planes from depth");
     
-    ca::Profiler::tictoc("Detect plane from depth image");
+    // RCLCPP_INFO(this->get_logger(), "Pulse1\n");
+    // RCLCPP_INFO(this->get_logger(), "Pulse2\n");
 
-    // std::vector<ObjectSet> framesCuboids; // each 2d bbox generates an ObjectSet, which is vector of sorted proposals
-    // cv::Mat rgbImg = objectDetector.rgb_img.clone();
-    // std::vector<cv::Mat> detPlane = planeDetector.mvPlaneCoefficients;
+    ca::Profiler::tictoc("cuboid detection");
+    std::vector<ObjectSet> framesCuboids; // each 2d bbox generates an ObjectSet, which is vector of sorted proposals
+    cv::Mat rgbImg = objectDetector.rgb_img.clone();
+    std::vector<cv::Mat> detPlane = planeDetector.mvPlaneCoefficients;
     
     // create save file for every frame
-    // string outputCuboidFile = outputFolder + "/" + frameIndexString + "_3d_cuboids.txt";
-    // string outputCuboidImg = outputImgFolder + "/" + frameIndexString + "_3d_img.png";
-    //objectDetector.detect_cuboid_every_frame(rgbImg, detPlane, framesCuboids, outputCuboidFile, outputCuboidImg);
+    string outputCuboidFile = outputFolder + "/" + frameIndexString + "_3d_cuboids.txt";
+    string outputCuboidImg = outputImgFolder + "/" + frameIndexString + "_3d_img.png";
+    objectDetector.detect_cuboid_every_frame(rgbImg, detPlane, framesCuboids, outputCuboidFile, outputCuboidImg);
 }

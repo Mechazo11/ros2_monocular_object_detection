@@ -28,8 +28,8 @@
 #include "ros2_monocular_object_detection/detect_cuboid_bbox/object_3d_util.h"
 
 
-#include "ros2_tictoc_profiler/profiler.hpp"
-// ros2_tictoc_profiler is now a library-only stand-alone ros2 c++ package
+#include "ros2_tictoc_profiler/profiler.hpp" // ros2_tictoc_profiler is now a library-only stand-alone ros2 c++ package
+
 
 using namespace std;
 // using namespace cv;
@@ -95,7 +95,7 @@ bool detect_cuboid_bbox::Read_Kalib_SUNRGBD(std::string &calib_file)
 	transToWolrd.block(0,0,3,3) = Tcw.transpose();
 	transToWolrd.col(3).head(3) = Eigen::Vector3d(0,0,0);
 	
-	//? Maybe from Dr. Yang`s CubeSLAM work?
+	//? Maybe from Dr. Yang`s CubeSLAM code?
 	// std::cout << "euler_angles: " << rotate_y_z.eulerAngles ( 0,1,2 ) << std::endl;
 	// Eigen::MatrixXd proj_matrix(3,4); // from world to image
 	// proj_matrix.block(0,0,3,3) = Calib * rotate_y_z * Rtilt.transpose();
@@ -123,15 +123,19 @@ bool detect_cuboid_bbox::Read_Dimension_SUNRGBD(std::string &dim_file)
 	return true;
 }
 
-bool detect_cuboid_bbox::Read_Label_SUNRGBD(std::string &label_file)
+bool detect_cuboid_bbox::Read_Label_SUNRGBD(std::string &label_file, bool showTruthCuboidList)
 {
 	std::vector<std::string> truth_class;// label: class(1), 2d bbox(4), centroid(3), dim(3), orient(2)
 	Eigen::MatrixXd truth_cuboid_list(1,12); 
 	truth_class.clear();
 	truth_cuboid_list.setZero();
 	if (!read_obj_detection_txt(label_file, truth_cuboid_list, truth_class))
-		return -1;
-	std::cout << "truth_cuboid_list: \n" << truth_cuboid_list << std::endl;
+		return false; // Return -1 may be a bad idea
+	
+	if (showTruthCuboidList){
+		std::cout << "truth_cuboid_list: \n" << truth_cuboid_list << std::endl;
+	}
+	
 	detected_obj_name = truth_class; // regards truth as input
 	detected_obj_input = truth_cuboid_list;
 	return true;
@@ -320,13 +324,15 @@ void detect_cuboid_bbox::detect_cuboid_with_bbox_constraints(cv::Mat& rgb_img, E
 	cv::Canny(gray_img(canny_bbox), im_canny, 80, 200); // low thre, high thre    im_canny 0 or 255   [80 200  40 100]
 	cv::Mat dist_map;
 	cv::distanceTransform(255 - im_canny, dist_map, CV_DIST_L2, 3); // dist_map is float datatype
+	
 	if (whether_plot_detail_images)
 	{
+		//NOTE: This should be two conditional checks to separate out showing output of edges detected by canny and the normalized depth map
 		cv::imshow("im_canny", im_canny);
 		cv::Mat dist_map_img;
 		cv::normalize(dist_map, dist_map_img, 0.0, 1.0, cv::NORM_MINMAX);
 		cv::imshow("normalized distance map", dist_map_img);
-		cv::waitKey();
+		cv::waitKey(waitKeyval); 
 	}
 
 	//edge detection // maybe just outside and compute once
@@ -362,16 +368,15 @@ void detect_cuboid_bbox::detect_cuboid_with_bbox_constraints(cv::Mat& rgb_img, E
 	// std::cout << "all_lines_merge_inobj: " << all_lines_merge_inobj << std::endl;
 	filter_line_by_coincide(all_lines_merge_inobj, pre_merge_angle_thre, pre_merge_dist_thre);
 	// std::cout << "all_lines_merge_inobj: " << all_lines_merge_inobj << std::endl;
+	
 	if (whether_plot_detail_images)
 	{
 		cv::Mat output_img;
 		plot_image_with_edges(rgb_img, output_img, all_lines_merge_inobj, cv::Scalar(255, 0, 0));
 		cv::imshow("Raw detected Edges", output_img);
-		cv::waitKey(0);
+		cv::waitKey(waitKeyval);
 	}
 
-
-	//! NEW IDEA: Here we will try to merge and grow the object
 
 	// step 4. for every sample and find best cuboid
 	double combined_scores = 1e9;
@@ -510,7 +515,7 @@ void detect_cuboid_bbox::detect_cuboid_with_bbox_constraints(cv::Mat& rgb_img, E
 			cv::Mat plot_img = rgb_img.clone();
 			plot_3d_box_with_loc_dim_camera(plot_img, Kalib, esti_location, object_dim_cam, obj_local_rot);
 			cv::imshow("proposal image", plot_img);
-			cv::waitKey(0);
+			cv::waitKey(waitKeyval);
 		}
 	} // loop yaw_id
 
@@ -522,11 +527,11 @@ void detect_cuboid_bbox::detect_cuboid_with_bbox_constraints(cv::Mat& rgb_img, E
 		Eigen::Matrix3d plot_obj_rot = final_obj_cuboid_cam->obj_rot_camera;
 		Eigen::Vector3d plot_obj_loc = final_obj_cuboid_cam->obj_loc_camera;
 		Eigen::Vector3d plot_obj_dim = final_obj_cuboid_cam->obj_dim_camera;
-		std::cout << "!!!!!!!final_location_camera:"  << plot_obj_loc.transpose()  << std::endl;
+		std::cout << "\n!!!!!!!final_location_camera:"  << plot_obj_loc.transpose()  << std::endl;
 		cv::Mat plot_img = rgb_img.clone();
 		plot_3d_box_with_loc_dim_camera(plot_img, Kalib, plot_obj_loc, plot_obj_dim, plot_obj_rot);
 		cv::imshow("selection image", plot_img);
-		cv::waitKey(0);              
+		cv::waitKey(waitKeyval);              
 	}
 
 	if(final_obj_cuboid_cam->overall_error!=1000)
@@ -568,7 +573,7 @@ void detect_cuboid_bbox::detect_cuboid_every_frame(cv::Mat& rgb_img, std::vector
 			if (whether_plot_final_scores)
 			{
 				cv::imshow("final selection image", plot_img);
-				cv::waitKey(0);
+				cv::waitKey(waitKeyval);
 			}
 			if (whether_save_final_image)
 			{

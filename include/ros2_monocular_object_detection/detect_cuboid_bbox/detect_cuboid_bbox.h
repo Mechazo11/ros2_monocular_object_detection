@@ -139,12 +139,15 @@ public:
 	std::vector<std::string> detected_obj_name;// frame object label: class(1), 2d bbox(4), centroid(3), dim(3), orient(2)
 	Eigen::MatrixXd detected_obj_input; 
 
+    int waitKeyval = 0; // Any positive integer, milliseconds, if 0, window waits until a key is pressed
+
 public:
     //* Function definitions
     bool Read_Image_SUNRGBD(std::string & img_file); 
     bool Read_Kalib_SUNRGBD(std::string &calib_file);
     bool Read_Dimension_SUNRGBD(std::string &dim_file);
-    bool Read_Label_SUNRGBD(std::string &label_file);
+    // bool Read_Label_SUNRGBD(std::string &label_file); // Original
+    bool Read_Label_SUNRGBD(std::string &label_file, bool showTruthCuboidList);
     bool Get_Object_Input_SUNRGBD(const int& index, std::string &obj_name, 
             Eigen::Vector4d &obj_bbox, Eigen::Vector3d& obj_dim, double& obj_yaw);
     void detect_cuboid_every_frame(cv::Mat& rgb_img, std::vector<cv::Mat>& mvPlaneCoefficients, 
