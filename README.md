@@ -98,9 +98,25 @@ mkdir pcl_library && cd pcl_library
 wget https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.13.1.tar.gz
 cd pcl-pcl-1.13.1 && mkdir build && cd build
 cmake .. # or ```ccmake ..``` if you want to change some settings.
+```
+> [!IMPORTANT]  
+> At this stage, if you try to install, some of the PCL libraries will fail to build since Cmake created does not look for Boost 1.84. To solve this, do the following
+> In the ```pcl-pcl-1.13.1``` directory find ```PCLConfig.cmake.in``` file and change ```set(Boost_ADDITIONAL_VERSIONS)``` to the following
+```
+set(Boost_ADDITIONAL_VERSIONS
+    "@Boost_MAJOR_VERSION@.@Boost_MINOR_VERSION@.@Boost_SUBMINOR_VERSION@" "@Boost_MAJOR_VERSION@.@Boost_MINOR_VERSION@"
+    "1.84.0" "1.84" "1.83.0" "1.83" "1.82.0" "1.82" "1.81.0" "1.81" "1.80.0" "1.80"
+    "1.79.0" "1.79" "1.78.0" "1.78" "1.77.0" "1.77" "1.76.0" "1.76" "1.75.0" "1.75" 
+    "1.74.0" "1.74" "1.73.0" "1.73" "1.72.0" "1.72" "1.71.0" "1.71" "1.70.0" "1.70"
+    "1.69.0" "1.69" "1.68.0" "1.68" "1.67.0" "1.67" "1.66.0" "1.66" "1.65.1" "1.65.0" "1.65")
+```
+
+Now finish installing PCL library as follows
+```
 sudo make -j4 # If you have more cores, you can choose a larger number
 sudo make -j4 install
 ```
+
 ## 3a. Prepare a ros2 workspace [Optional but I recommend it]
 ```
 cd ~
@@ -121,5 +137,17 @@ source install/setup.bash # When installation is successful
 ## 3c. Source and build this package
 ```
 cd ~/ros2_test/src
-
+git clone https://github.com/Mechazo11/ros2_monocular_object_detection.git
+cd ..
+colcon build --packages-select ros2_monocular_object_detection
+source install/setup.bash
 ```
+
+## 4. Testing
+Run the following command and press any keys to move through the sample proposals and final cuboid proposal for each image.
+```
+ros2 run ros2_monocular_object_detection det_rgbd_opti_sun_node 
+```
+
+## 5 Known bugs
+** Cannot shutdown the node with Ctrl+C.
