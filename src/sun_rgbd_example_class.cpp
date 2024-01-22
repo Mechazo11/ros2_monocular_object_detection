@@ -68,7 +68,9 @@ SUNRGBDObjectDetector::SUNRGBDObjectDetector() :Node("point_plane_object_cuboid"
     objectDetector.Read_Dimension_SUNRGBD(objDimFile); // Table 1 from 2022 point-plane-object SLAM paper
     
     totalFrameNumber = vImageId.size();
-    totalFrameNumber = 50; // Set a positive value < 400 if you want to test with a subset of the images
+    
+    // Set a positive value < 400 if you want to test with a subset of the images
+    totalFrameNumber = 5; 
 
     // Initialization complete
 }

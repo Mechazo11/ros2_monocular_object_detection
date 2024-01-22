@@ -41,7 +41,8 @@ include_directories(${PCL_INCLUDE_DIRS}) # include headers for PCL library
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-message("PCL Include Directories: ${PCL_INCLUDE_DIRS}") # Debug message
+# Debug
+#message("PCL Include Directories: ${PCL_INCLUDE_DIRS}") # Debug message
 #message("PCL_SAMPLE_CONSESUS_LIBRARIES: " ${PCL_SAMPLE_CONSESUS_LIBRARIES})
 
 

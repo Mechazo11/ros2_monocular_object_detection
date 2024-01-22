@@ -139,7 +139,7 @@ public:
 	std::vector<std::string> detected_obj_name;// frame object label: class(1), 2d bbox(4), centroid(3), dim(3), orient(2)
 	Eigen::MatrixXd detected_obj_input; 
 
-    int waitKeyval = 0; // Any positive integer, milliseconds, if 0, window waits until a key is pressed
+    int waitKeyval = 1000; // Any positive integer, milliseconds, if 0, window waits until a key is pressed
 
 public:
     //* Function definitions

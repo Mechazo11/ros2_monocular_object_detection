@@ -15,7 +15,7 @@
   <build_depend>ros2_line_lbd</build_depend>
   <build_depend>ros2_tictoc_profiler</build_depend>
   <build_depend>pcl_conversions</build_depend>
-  <build_depend>pcl_1.14</build_depend>
+  <build_depend>pcl</build_depend>
   
   <!-- Execution dependencies -->
   <exec_depend>rclcpp</exec_depend>
@@ -24,7 +24,7 @@
   <exec_depend>ros2_tictoc_profiler</exec_depend>
   
   <exec_depend>pcl_conversions</exec_depend>
-  <exec_depend>pcl_1.14</exec_depend> 
+  <exec_depend>pcl</exec_depend> 
   <!-- This version was installed -->
 
   <test_depend>ament_lint_auto</test_depend>
