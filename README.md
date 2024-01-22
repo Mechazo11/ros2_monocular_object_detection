@@ -1,6 +1,6 @@
 # ROS2 port of monocular object detection package
 
-This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https://github.com/benchun123/monocular_object_detection) package from his [point-plane-object-SLAM]() paper. My goal was to keep the implementation as close to the original implementation as possible. Hence, it mostly reuses the files and function calls but differs from how thirdparty dependencies are met. If you use this package for academic work, please consider citing the original author's paper below
+This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https://github.com/benchun123/monocular_object_detection) package from his [point-plane-object-SLAM]() paper. My goal was to keep this implementation as close to the original as possible. Hence, it mostly reuses the varialbes and function calls but differs from how Thirdparty dependencies are handled. If you use this package for academic work, please consider citing the original author's paper below
 
 ** Benchun Zhou, Maximilian Gilles, Yongqi Meng. **Structure SLAM with Points, Planes, and Objects**[J]//Advanced Robotics 36.20 (2022): 1060-1075. [[**Link**](https://www.tandfonline.com/doi/full/10.1080/01691864.2022.2123253)] [[**PDF**](./README_Picture/2022_Advanced_Robotics_Publication.pdf)]  [[**Slide**](./README_Picture/2022_Advanced_Robotics_Slide.pdf)]
  [[**Youtube**](https://youtu.be/nBbGTFeUh88)] [[**Bilibili**](https://www.bilibili.com/video/BV1JM4y167uT)]
@@ -12,7 +12,7 @@ This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https:/
 * The original ROS 1 package used PCL 1.8.1 but Ubuntu 22.04 is compatible with 1.12.1. In version 1.12, ```boost::make_shared<pcl::PointIndices>``` is changed to ```pcl::make_shared<pcl::PointIndices>```.  
 * Solved this [error](https://github.com/PointCloudLibrary/pcl/issues/5063) that occurs due to PCL 1.21.1 library being shipped out with Ubuntu 22.04 before [PR #5130](https://github.com/PointCloudLibrary/pcl/pull/5130) was commited to PCL library
 * Tested with newest PCL release (1.14) but starting from 1.14 but was having issue with the ```sample consensus``` library in PCL. Hence, downgraded to 1.13.1.
-* If I am not mistaken, starting from 1.13, PCL library requries Boost>=1.82 due to a change in how ```filesystems``` library is used. 
+* If I am not mistaken, starting from 1.13, PCL library requries Boost>=1.82 due to a change in how ```filesystems``` library is used. Will add a better info source if I come accross it. 
 * For newcomers in ROS2 ecosystem, this package serves as an example of building a shared cpp library and on using so-called **library-only** (my own opinion, don`t quote me on this) ROS2 packages.
 
 ## Tested with
