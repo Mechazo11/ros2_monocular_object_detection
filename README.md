@@ -7,7 +7,7 @@ This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https:/
 
 
 ## 0. Some notable changes
-* OpenCV >=4.2, Boost >=1.80, CXX17 standard, Eigen >=3.3, PCL 1.13.1 (exactly, see below) and two other ros2 packages
+* OpenCV >=4.2, Boost >=1.80, CXX17 standard, Eigen >=3.3, PCL 1.13.1 (exactly, see below), Cmake>=3.5, and two other ros2 packages
 * Change some OpenCV keywords to reflect the changes made between OpenCV 3 and OpenCV 4
 * The original ROS 1 package used PCL 1.8.1 but Ubuntu 22.04 is compatible with 1.12.1. In version 1.12, ```boost::make_shared<pcl::PointIndices>``` is changed to ```pcl::make_shared<pcl::PointIndices>```.  
 * Solved this [error](https://github.com/PointCloudLibrary/pcl/issues/5063) that occurs due to PCL 1.21.1 library being shipped out with Ubuntu 22.04 before [PR #5130](https://github.com/PointCloudLibrary/pcl/pull/5130) was commited to PCL library
@@ -20,6 +20,7 @@ This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https:/
 * ROS2 Humble Hawksbill (LST)
 * Boost 1.84
 * PCL 1.13.1
+* Cmake 3.8
 
 ## 1. Prepare dataset
 Install ```gdown``` if you don't have it
@@ -55,12 +56,70 @@ sudo rm -r /usr/local/lib/cmake/[Bb]oost*
 sudo rm -f /usr/lib/libboost_*
 sudo rm -r /usr/include/boost
 ```
+Now lets download and install Boost 1.84. Steps adopted from the same stackexchange post liked above
+```
+cd ~\Documents # Move to Documents folder
+mkdir boost && cd boost
+wget http://downloads.sourceforge.net/project/boost/boost/1.84.0/boost_1_84_0.tar.gz # Download boost 1.84
+tar -zxvf boost_1_84_0.tar.gz
+cd boost_1_84_0
+# get the no of cpucores to make faster
+cpuCores=`cat /proc/cpuinfo | grep "cpu cores" | uniq | awk '{print $NF}'`
+echo "Available CPU cores: "$cpuCores
+./bootstrap.sh  # this will generate ./b2
+sudo ./b2 --with=all -j $cpuCores install
+```
+
+Then check if its installed correctly
+```
+cat /usr/local/include/boost/version.hpp | grep "BOOST_LIB_VERSION"
+```
+which should give an output similar to 
+```
+//  BOOST_LIB_VERSION must be defined to be the same as BOOST_VERSION
+#define BOOST_LIB_VERSION "1_84"
+```
 
 ### Point Cloud Library 1.13.1
-TODO, 1.14 might work but it may not have sample_consensus library built into it. 1.13.1 has this library for sure
 
-## 3. Source and build required ros2 packages
-TODO
+Remove old point cloud library
 
-## 4. Source and build this package
-TODO
+```
+sudo apt remove libpcl-dev
+
+```
+> [!WARNING]
+> There is high possibility this step will result in removal of a good chunk of ROS 2 Humble packages. In that case, reinstall ROS 2 Humble once you are done with installing prerequisit software
+
+Now download and install PCL 1.13.1. Steps adopted from [official tutorial](https://pcl.readthedocs.io/projects/tutorials/en/latest/compiling_pcl_posix.html)
+```
+cd ~/Documents
+mkdir pcl_library && cd pcl_library
+wget https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.13.1.tar.gz
+cd pcl-pcl-1.13.1 && mkdir build && cd build
+cmake .. # or ```ccmake ..``` if you want to change some settings.
+sudo make -j4 # If you have more cores, you can choose a larger number
+sudo make -j4 install
+```
+## 3a. Prepare a ros2 workspace [Optional but I recommend it]
+```
+cd ~
+source /opt/ros/humble/setup.bash
+mkdir -p ~/ros2_test/src
+```
+
+## 3b. Source and build two ros2 packages
+```
+cd ~/ros2_test/src
+git clone https://github.com/Mechazo11/ros2_tictoc_profiler.git
+git clone https://github.com/Mechazo11/ros2_line_lbd.git
+cd .. # move to root directory of ros2_test
+colcon build --packages-select ros2_tictoc_profiler ros2_line_lbd
+source install/setup.bash # When installation is successful
+```
+
+## 3c. Source and build this package
+```
+cd ~/ros2_test/src
+
+```
