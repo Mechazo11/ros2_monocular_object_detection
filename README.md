@@ -1,1 +1,66 @@
+# ROS2 port of monocular object detection package
+
+This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https://github.com/benchun123/monocular_object_detection) package from his [point-plane-object-SLAM]() paper. My goal was to keep the implementation as close to the original implementation as possible. Hence, it mostly reuses the files and function calls but differs from how thirdparty dependencies are met. If you use this package for academic work, please consider citing the original author's paper below
+
+** Benchun Zhou, Maximilian Gilles, Yongqi Meng. **Structure SLAM with Points, Planes, and Objects**[J]//Advanced Robotics 36.20 (2022): 1060-1075. [[**Link**](https://www.tandfonline.com/doi/full/10.1080/01691864.2022.2123253)] [[**PDF**](./README_Picture/2022_Advanced_Robotics_Publication.pdf)]  [[**Slide**](./README_Picture/2022_Advanced_Robotics_Slide.pdf)]
+ [[**Youtube**](https://youtu.be/nBbGTFeUh88)] [[**Bilibili**](https://www.bilibili.com/video/BV1JM4y167uT)]
+
+
+## 0. Some notable changes
+* OpenCV >=4.2, Boost >=1.80, CXX17 standard, Eigen >=3.3, PCL 1.13.1 (exactly, see below) and two other ros2 packages
+* Change some OpenCV keywords to reflect the changes made between OpenCV 3 and OpenCV 4
+* The original ROS 1 package used PCL 1.8.1 but Ubuntu 22.04 is compatible with 1.12.1. In version 1.12, ```boost::make_shared<pcl::PointIndices>``` is changed to ```pcl::make_shared<pcl::PointIndices>```.  
+* Solved this [error](https://github.com/PointCloudLibrary/pcl/issues/5063) that occurs due to PCL 1.21.1 library being shipped out with Ubuntu 22.04 before [PR #5130](https://github.com/PointCloudLibrary/pcl/pull/5130) was commited to PCL library
+* Tested with newest PCL release (1.14) but starting from 1.14 but was having issue with the ```sample consensus``` library in PCL. Hence, downgraded to 1.13.1.
+* If I am not mistaken, starting from 1.13, PCL library requries Boost>=1.82 due to a change in how ```filesystems``` library is used. 
+* For newcomers in ROS2 ecosystem, this package serves as an example of building a shared cpp library and on using so-called **library-only** (my own opinion, don`t quote me on this) ROS2 packages.
+
+## Tested with
+* Ubuntu 22.04 LTS (Jammy Jellyfish)
+* ROS2 Humble Hawksbill (LST)
+* Boost 1.84
+* PCL 1.13.1
+
+## 1. Prepare dataset
+Install ```gdown``` if you don't have it
+```
+pip3 install gdown
+```
+Then download the sample SUN RGB-D dataset provided in the original ROS1 repository in /Documents folder. 
+```
+cd ~/Documents
+gdown --id 14PQWSmCsBvmomllWeF4_hlDiEuYIyWgQ # Download from Google drive
+unzip SUN_RGBD_Selected.zip 
+```
+> [!WARNING]  
+> The dataset must exsist here, I hardcoded its location.
+
+## 2. Install prerequisiti softwares
+
+### Eigen 3
+```
+sudo apt install libeigen3-dev
+```
+
+### Boost 1.84
+Uninstall old version of boost. Adopted from this [stackexchange](https://stackoverflow.com/questions/8430332/uninstall-boost-and-install-another-version) post.
+> [!CAUTION]
+> Go over the linked stackexchange post before doing this step.
+```
+sudo apt-get -y --purge remove libboost-all-dev libboost-doc libboost-dev
+echo "clear boost dir"
+sudo rm -r /usr/local/lib/libboost*
+sudo rm -r /usr/local/include/boost
+sudo rm -r /usr/local/lib/cmake/[Bb]oost*
+sudo rm -f /usr/lib/libboost_*
+sudo rm -r /usr/include/boost
+```
+
+### Point Cloud Library 1.13.1
+TODO, 1.14 might work but it may not have sample_consensus library built into it. 1.13.1 has this library for sure
+
+## 3. Source and build required ros2 packages
+TODO
+
+## 4. Source and build this package
 TODO
