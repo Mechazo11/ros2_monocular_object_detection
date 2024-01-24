@@ -141,15 +141,6 @@ target_link_libraries(sun_rgbd_lib
 
 # -----------------------------------------------------------------------------------------
 
-
-# Find the .so files provided in Thirdparty projects so that they may be found during runtime
-# set(line_lbd_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/line_lbd/lib/libline_lbd_lib.so") # TODO this is now its own ros2 package
-# set(tictoc_profiler_PATH "${PROJECT_SOURCE_DIR}/Thirdparty/tictoc_profiler/lib/libtictoc_profiler.so")
-
-# Install .so files to the lib directory in the install space
-# install(FILES ${line_lbd_PATH} DESTINATION lib)
-install(FILES ${tictoc_profiler_PATH} DESTINATION lib)
-
 # Define executables and tie relevant .cpp files
 add_executable(det_rgbd_opti_sun_node 
   src/sun_rgbd_driver.cpp
