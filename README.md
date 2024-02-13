@@ -7,12 +7,12 @@ This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https:/
 
 
 ## 0. Some notable changes
-* OpenCV >=4.2, Boost >=1.80, CXX17 standard, Eigen >=3.3, PCL 1.13.1 (exactly, see below), Cmake>=3.5, and two other ros2 packages
+* OpenCV >=4.2, Boost >=1.80, CXX17 standard, Eigen >=3.3, PCL 1.13.1 (this version exactly, reason explained below), Cmake>=3.5, and two other ros2 packages
 * Change some OpenCV keywords to reflect the changes made between OpenCV 3 and OpenCV 4
 * The original ROS 1 package used PCL 1.8.1 but Ubuntu 22.04 is compatible with 1.12.1. In version 1.12, ```boost::make_shared<pcl::PointIndices>``` is changed to ```pcl::make_shared<pcl::PointIndices>```.  
 * Solved this [error](https://github.com/PointCloudLibrary/pcl/issues/5063) that occurs due to PCL 1.21.1 library being shipped out with Ubuntu 22.04 before [PR #5130](https://github.com/PointCloudLibrary/pcl/pull/5130) was commited to PCL library
-* Tested with newest PCL release (1.14) but starting from 1.14 but was having issue with the ```sample consensus``` library in PCL. Hence, downgraded to 1.13.1.
-* If I am not mistaken, starting from 1.13, PCL library requries Boost>=1.82 due to a change in how ```filesystems``` library is used. Will add a better info source if I come accross it. 
+* Tested with newest PCL release (1.14) but this release may be missing the ```sample consensus``` librar. Hence, downgraded to 1.13.1.
+* If I am not mistaken, starting from 1.13, PCL library requries Boost>=1.82 due to a changes in how ```filesystems``` library is used. Will add a better info source if I come accross it. 
 * For newcomers in ROS2 ecosystem, this package serves as an example of building a shared cpp library and on using so-called **library-only** (my own opinion, don`t quote me on this) ROS2 packages.
 
 ## Tested with
