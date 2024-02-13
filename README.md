@@ -96,6 +96,7 @@ Now download and install PCL 1.13.1. Steps adopted from [official tutorial](http
 cd ~/Documents
 mkdir pcl_library && cd pcl_library
 wget https://github.com/PointCloudLibrary/pcl/archive/refs/tags/pcl-1.13.1.tar.gz
+tar xvf pcl-1.13.1.tar.gz
 cd pcl-pcl-1.13.1 && mkdir build && cd build
 cmake .. # or ```ccmake ..``` if you want to change some settings.
 ```
