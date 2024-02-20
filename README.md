@@ -23,9 +23,9 @@ This is a ROS 2 port of Benchun Zhou`s ROS1 [monocular_object_detection](https:/
 * Cmake 3.8
 
 ## 1. Prepare dataset
-Install ```gdown``` if you don't have it
+Install ```gdown``` 
 ```
-pip3 install gdown
+pip3 install --upgrade gdown
 ```
 Then download the sample SUN RGB-D dataset provided in the original ROS1 repository in /Documents folder. 
 ```
